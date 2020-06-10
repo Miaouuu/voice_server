@@ -20,7 +20,7 @@ router.post("/login", function (req, res, next) {
           res.send(err);
         }
         const token = jwt.sign(user.toJSON(), "your_jwt_secret");
-        return res.json({ token });
+        return res.json({ user: { email: user.email }, token });
       });
     }
   )(req, res);
