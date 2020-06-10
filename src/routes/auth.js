@@ -27,19 +27,15 @@ router.post("/login", function (req, res, next) {
 });
 
 router.post("/register", function (req, res, next) {
-  passport.authenticate(
-    "local-register",
-    { session: false },
-    (err, user, info) => {
-      console.log(err);
-      if (err || !user) {
-        return res.status(400).json({
-          message: info ? info.message : "Register failed",
-        });
-      }
-      return res.json({ message: info.message });
+  passport.authenticate("local-register", { session: false }, (err, info) => {
+    console.log(err);
+    if (err) {
+      return res.status(400).json({
+        message: info ? info.message : "Register failed",
+      });
     }
-  )(req, res);
+    return res.json({ message: info.message });
+  })(req, res);
 });
 
 module.exports = router;

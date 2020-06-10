@@ -15,13 +15,19 @@ passport.use(
       passwordField: "password",
     },
     function (email, password, cb) {
-      return User.findOne({ email, password })
+      return User.findOne({ email })
         .then((user) => {
           if (!user) {
             return cb(null, false, { message: "Incorrect email or password." });
           }
-          return cb(null, user, {
-            message: "Logged In Successfully",
+          bcrypt.compare(password, user.password, function (err, res) {
+            if (res) {
+              return cb(null, user, {
+                message: "Logged In Successfully",
+              });
+            } else {
+              return cb(err, false, { message: "Wrong Password" });
+            }
           });
         })
         .catch((err) => {
@@ -39,24 +45,27 @@ passport.use(
       passwordField: "password",
     },
     function (email, password, cb) {
-      User.findOne({ email })
-        .then((user) => {
-          if (user) {
-            return cb(null, false, { message: "Email is already taken" });
-          } else {
-            let newUser = new User({
-              email,
-              password,
-            });
-            newUser.save(function (err) {
-              if (err) throw err;
-              return cb(null, false, { message: "Register Successfully" });
-            });
-          }
-        })
-        .catch((err) => {
-          return cb(err);
-        });
+      bcrypt.hash(password, 10, function (err, hash) {
+        if (err) throw err;
+        return User.findOne({ email })
+          .then((user) => {
+            if (user) {
+              return cb(null, { message: "Email is already taken" });
+            } else {
+              let newUser = new User({
+                email,
+                password: hash,
+              });
+              newUser.save(function (err) {
+                if (err) throw err;
+                return cb(null, { message: "Register Successfully" });
+              });
+            }
+          })
+          .catch((err) => {
+            return cb(err);
+          });
+      });
     }
   )
 );
