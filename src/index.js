@@ -2,6 +2,7 @@ const express = require("express");
 const passport = require("passport");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
+const cors = require("cors");
 const RTCMultiConnectionServer = require("rtcmulticonnection-server");
 
 const app = express();
@@ -19,6 +20,7 @@ mongoose.connect("mongodb://localhost:27017/voice", {
   useUnifiedTopology: true,
 });
 
+app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/auth", auth);
