@@ -3,6 +3,9 @@ const passportJWT = require("passport-jwt");
 const ExtractJWT = passportJWT.ExtractJwt;
 const LocalStrategy = require("passport-local").Strategy;
 const JWTStrategy = passportJWT.Strategy;
+const bcrypt = require("bcrypt");
+
+const User = require("./models/User");
 
 passport.use(
   "local-login",
@@ -41,11 +44,14 @@ passport.use(
           if (user) {
             return cb(null, false, { message: "Email is already taken" });
           } else {
-            return cb(
-              null,
-              { email, password },
-              { message: "Register Successfully" }
-            );
+            let newUser = new User({
+              email,
+              password,
+            });
+            newUser.save(function (err) {
+              if (err) throw err;
+              return cb(null, false, { message: "Register Successfully" });
+            });
           }
         })
         .catch((err) => {
@@ -62,7 +68,7 @@ passport.use(
       secretOrKey: "your_jwt_secret",
     },
     function (jwtPayload, cb) {
-      return User.findOneById(jwtPayload.id)
+      return User.findById(jwtPayload._id)
         .then((user) => {
           return cb(null, user);
         })

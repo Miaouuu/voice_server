@@ -2,7 +2,6 @@ const express = require("express");
 const router = express.Router();
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
-const User = require("../models/User");
 
 router.post("/login", function (req, res, next) {
   passport.authenticate(
@@ -20,8 +19,8 @@ router.post("/login", function (req, res, next) {
         if (err) {
           res.send(err);
         }
-        const token = jwt.sign(user, "your_jwt_secret");
-        return res.json({ user, token });
+        const token = jwt.sign(user.toJSON(), "your_jwt_secret");
+        return res.json({ token });
       });
     }
   )(req, res);
@@ -38,12 +37,7 @@ router.post("/register", function (req, res, next) {
           message: info ? info.message : "Register failed",
         });
       }
-      let newUser = new User({ email: user.email, password: user.password });
-      console.log(newUser);
-      newUser.save(function (err) {
-        if (err) throw err;
-        return res.json({ message: info.message });
-      });
+      return res.json({ message: info.message });
     }
   )(req, res);
 });
