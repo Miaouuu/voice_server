@@ -17,14 +17,16 @@ const createPin = async () => {
 };
 
 router.get("/:id", (req, res) => {
-  Server.findById(req.params.id, (err, data) => {
-    if (err) throw err;
-    if (data === null) {
-      res.send({ message: "The server doesn't exist !" });
-    } else {
-      res.send(data);
-    }
-  });
+  Server.findById(req.params.id)
+    .populate("channels")
+    .exec((err, data) => {
+      if (err) throw err;
+      if (data === null) {
+        res.send({ message: "The server doesn't exist !" });
+      } else {
+        res.send(data);
+      }
+    });
 });
 
 router.post("/", async (req, res) => {
@@ -69,7 +71,16 @@ router.post("/join/:invitation", (req, res) => {
             },
             (err) => {
               if (err) throw err;
-              res.send({ message: "You joined the server" });
+              Server.updateOne(
+                { invitation: req.params.invitation },
+                {
+                  $push: { accesses: req.user._id },
+                },
+                (err) => {
+                  if (err) throw err;
+                  res.send({ message: "You joined the server" });
+                }
+              );
             }
           );
         } else {
