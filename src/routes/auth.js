@@ -3,7 +3,7 @@ const router = express.Router();
 const jwt = require("jsonwebtoken");
 const passport = require("passport");
 
-router.post("/login", function (req, res, next) {
+router.post("/login", (req, res, next) => {
   passport.authenticate(
     "local-login",
     { session: false },
@@ -20,13 +20,16 @@ router.post("/login", function (req, res, next) {
           res.send(err);
         }
         const token = jwt.sign(user.toJSON(), "your_jwt_secret");
-        return res.json({ user: { email: user.email }, token });
+        return res.json({
+          user: { _id: user._id, email: user.email, servers: user.servers },
+          token,
+        });
       });
     }
   )(req, res);
 });
 
-router.post("/register", function (req, res, next) {
+router.post("/register", (req, res, next) => {
   passport.authenticate("local-register", { session: false }, (err, info) => {
     console.log(err);
     if (err) {

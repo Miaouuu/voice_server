@@ -6,11 +6,13 @@ const cors = require("cors");
 const RTCMultiConnectionServer = require("rtcmulticonnection-server");
 
 const app = express();
-const server = require("http").createServer(app);
-const io = require("socket.io")(server);
+const serv = require("http").createServer(app);
+const io = require("socket.io")(serv);
 
 const auth = require("./routes/auth");
 const user = require("./routes/user");
+const server = require("./routes/server");
+const channel = require("./routes/channel");
 
 require("./passport");
 require("dotenv").config();
@@ -24,12 +26,22 @@ app.use(cors());
 app.use(bodyParser.json());
 
 app.use("/auth", auth);
-app.use("/user", passport.authenticate("jwt", { session: false }), user);
+app.use("/api/user", passport.authenticate("jwt", { session: false }), user);
+app.use(
+  "/api/server",
+  passport.authenticate("jwt", { session: false }),
+  server
+);
+app.use(
+  "/api/channel",
+  passport.authenticate("jwt", { session: false }),
+  channel
+);
 
 io.on("connection", (socket) => {
   RTCMultiConnectionServer.addSocket(socket);
 });
 
-server.listen(process.env.PORT, () => {
+serv.listen(process.env.PORT, () => {
   console.log("Socket.IO server is running on " + process.env.PORT);
 });

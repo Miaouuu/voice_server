@@ -20,7 +20,7 @@ passport.use(
           if (!user) {
             return cb(null, false, { message: "Incorrect email or password." });
           }
-          bcrypt.compare(password, user.password, function (err, res) {
+          bcrypt.compare(password, user.password, (err, res) => {
             if (res) {
               return cb(null, user, {
                 message: "Logged In Successfully",
@@ -45,7 +45,7 @@ passport.use(
       passwordField: "password",
     },
     function (email, password, cb) {
-      bcrypt.hash(password, 10, function (err, hash) {
+      bcrypt.hash(password, 10, (err, hash) => {
         if (err) throw err;
         return User.findOne({ email })
           .then((user) => {
@@ -56,7 +56,7 @@ passport.use(
                 email,
                 password: hash,
               });
-              newUser.save(function (err) {
+              newUser.save((err) => {
                 if (err) throw err;
                 return cb(null, { message: "Register Successfully" });
               });
