@@ -17,7 +17,7 @@ router.post("/", (req, res) => {
   let newChannel = new Channel({
     name: req.body.name,
     type: req.body.type,
-    accesses: [req.user._id],
+    accesses: req.body.users,
     server: req.body.server,
     messages: [],
   });

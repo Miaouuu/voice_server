@@ -41,10 +41,11 @@ passport.use(
   "local-register",
   new LocalStrategy(
     {
+      passReqToCallback: true,
       usernameField: "email",
       passwordField: "password",
     },
-    function (email, password, cb) {
+    function (req, email, password, cb) {
       bcrypt.hash(password, 10, (err, hash) => {
         if (err) throw err;
         return User.findOne({ email })
@@ -53,9 +54,11 @@ passport.use(
               return cb(null, { message: "Email is already taken" });
             } else {
               let newUser = new User({
+                username: req.body.username,
                 email,
                 password: hash,
               });
+              console.log(newUser);
               newUser.save((err) => {
                 if (err) throw err;
                 return cb(null, { message: "Register Successfully" });
